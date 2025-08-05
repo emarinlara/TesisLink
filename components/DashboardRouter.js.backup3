@@ -1,0 +1,339 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { supabase } from '../utils/supabase'
+import { useAuth } from '../utils/auth'
+import CycleManagement from './CycleManagement'
+import StudentManagement from './StudentManagement'
+import ProfessorManagement from './ProfessorManagement'
+import StudentProfile from './StudentProfile'
+import StudentProposals from './StudentProposals'
+import ProfessorDashboard from './ProfessorDashboard'
+import TutorReview from './TutorReview'
+
+export default function DashboardRouter() {
+  const { user, userProfile, signOut } = useAuth()
+  const [currentView, setCurrentView] = useState('dashboard')
+  const [stats, setStats] = useState({
+    cycles: 0,
+    students: 0, 
+    professors: 0,
+    proposals: 0
+  })
+
+  useEffect(() => {
+    if (userProfile?.role === 'tutor') {
+      loadStats()
+    }
+  }, [userProfile])
+
+  const loadStats = async () => {
+    try {
+      // Obtener estadísticas dinámicas de la base de datos
+      const [cyclesRes, studentsRes, professorsRes, proposalsRes] = await Promise.all([
+        supabase.from('cycles').select('id', { count: 'exact' }),
+        supabase.from('students').select('id', { count: 'exact' }),
+        supabase.from('professors').select('id', { count: 'exact' }),
+        supabase.from('student_proposals').select('id', { count: 'exact' })
+      ])
+
+      setStats({
+        cycles: cyclesRes.count || 0,
+        students: studentsRes.count || 0,
+        professors: professorsRes.count || 0,
+        proposals: proposalsRes.count || 0
+      })
+    } catch (error) {
+      console.error('Error loading stats:', error)
+    }
+  }
+
+  const handleLogout = async () => {
+    if (window.confirm('¿Estás seguro de que quieres cerrar sesión?')) {
+      try {
+        await signOut()
+        window.location.reload()
+      } catch (error) {
+        console.error('Error al cerrar sesión:', error)
+        window.location.href = '/'
+      }
+    }
+  }
+
+  if (!user || !userProfile) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <span className="text-gray-600">Cargando...</span>
+        </div>
+      </div>
+    )
+  }
+
+  // Dashboard del Tutor
+  if (userProfile.role === 'tutor') {
+    if (currentView === 'cycles') {
+      return <CycleManagement />
+    }
+    if (currentView === 'students') {
+      return <StudentManagement />
+    }
+    if (currentView === 'professors') {
+      return <ProfessorManagement />
+    }
+    if (currentView === 'review') {
+      return <TutorReview onBackToDashboard={() => setCurrentView('dashboard')} />
+    }
+
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Dashboard del Tutor</h1>
+              <p className="text-gray-600 mt-1">Gestión completa del sistema académico</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+            >
+              🚪 Cerrar Sesión
+            </button>
+          </div>
+
+          {/* Estadísticas */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className="text-2xl">🔄</div>
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt className="text-sm font-medium text-gray-500 truncate">Ciclos Académicos</dt>
+                      <dd className="text-2xl font-bold text-gray-900">{stats.cycles}</dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className="text-2xl">🎓</div>
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt className="text-sm font-medium text-gray-500 truncate">Estudiantes</dt>
+                      <dd className="text-2xl font-bold text-gray-900">{stats.students}</dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className="text-2xl">👨‍🏫</div>
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt className="text-sm font-medium text-gray-500 truncate">Profesores</dt>
+                      <dd className="text-2xl font-bold text-gray-900">{stats.professors}</dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className="text-2xl">📝</div>
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt className="text-sm font-medium text-gray-500 truncate">Solicitudes</dt>
+                      <dd className="text-2xl font-bold text-gray-900">{stats.proposals}</dd>
+                    </dl>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Botones de Gestión */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <button
+              onClick={() => setCurrentView('cycles')}
+              className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-200 text-left"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="text-3xl">🔄</div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Gestionar Ciclo</h3>
+                  <p className="text-sm text-gray-600">Crear y configurar ciclos académicos</p>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setCurrentView('students')}
+              className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-200 text-left"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="text-3xl">🎓</div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Gestionar Estudiantes</h3>
+                  <p className="text-sm text-gray-600">Agregar y administrar estudiantes</p>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setCurrentView('professors')}
+              className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-200 text-left"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="text-3xl">👨‍🏫</div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Gestionar Profesores</h3>
+                  <p className="text-sm text-gray-600">Agregar y administrar profesores</p>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setCurrentView('review')}
+              className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-200 text-left border-2 border-blue-200"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="text-3xl">📋</div>
+                <div>
+                  <h3 className="text-lg font-semibold text-blue-900">Revisar Asignaciones</h3>
+                  <p className="text-sm text-blue-600">Ver y ajustar asignaciones finales</p>
+                </div>
+              </div>
+            </button>
+          </div>
+
+          {/* Información Adicional */}
+          <div className="mt-8 bg-blue-50 border border-blue-200 rounded-md p-4">
+            <div className="flex">
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-blue-800">Estado del Sistema</h3>
+                <div className="mt-2 text-sm text-blue-700">
+                  <p>• Ciclo académico activo con {stats.students} estudiantes registrados</p>
+                  <p>• {stats.professors} profesores disponibles para asignación</p>
+                  <p>• {stats.proposals} solicitudes de estudiantes pendientes/procesadas</p>
+                  <p>• Usa <strong>"Revisar Asignaciones"</strong> para finalizar el proceso</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Dashboard del Estudiante
+  if (userProfile.role === 'student') {
+    if (currentView === 'profile') {
+      return <StudentProfile />
+    }
+    if (currentView === 'proposals') {
+      return <StudentProposals />
+    }
+
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-4xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Dashboard del Estudiante</h1>
+              <p className="text-gray-600 mt-1">Hola, {userProfile.name || user.email}</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+            >
+              🚪 Cerrar Sesión
+            </button>
+          </div>
+
+          {/* Opciones principales */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <button
+              onClick={() => setCurrentView('profile')}
+              className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-200 text-left"
+            >
+              <div className="flex items-center space-x-4">
+                <div className="text-4xl">👤</div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">Completar Perfil</h3>
+                  <p className="text-gray-600 mt-1">Información del proyecto de tesis</p>
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setCurrentView('proposals')}
+              className="bg-white p-6 rounded-lg shadow hover:shadow-md transition-shadow duration-200 text-left"
+            >
+              <div className="flex items-center space-x-4">
+                <div className="text-4xl">📝</div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">Hacer Solicitudes</h3>
+                  <p className="text-gray-600 mt-1">Solicitar profesores lectores</p>
+                </div>
+              </div>
+            </button>
+          </div>
+
+          {/* Información */}
+          <div className="mt-8 bg-green-50 border border-green-200 rounded-md p-4">
+            <div className="flex">
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-green-800">Instrucciones</h3>
+                <div className="mt-2 text-sm text-green-700">
+                  <p>1. <strong>Completa tu perfil</strong> con la información de tu proyecto de tesis</p>
+                  <p>2. <strong>Solicita profesores</strong> para que evalúen tu trabajo</p>
+                  <p>3. Espera la confirmación de los profesores y el tutor</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Dashboard del Profesor
+  if (userProfile.role === 'professor') {
+    return <ProfessorDashboard />
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">Rol no reconocido</h2>
+        <p className="text-gray-600 mb-4">No se pudo determinar tu rol en el sistema.</p>
+        <button
+          onClick={handleLogout}
+          className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+        >
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  )
+}
