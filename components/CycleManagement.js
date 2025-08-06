@@ -392,7 +392,7 @@ export default function CycleManagement({ onBackToDashboard, onLogout }) {
             
             <div className="mb-6 p-4 bg-[#FFD400] border border-[#FFD400]">
               <p className="text-sm text-[#FFD400] mb-3">
-                <strong>Nombre del nuevo ciclo:</strong> "{formData.name}"
+                <strong>Nombre del nuevo ciclo:</strong> &quot;{formData.name}&quot;
               </p>
               <p className="text-sm text-[#FFD400] mb-2">
                 <strong>Esto eliminará permanentemente:</strong>
