@@ -301,7 +301,7 @@ export default function ProfessorAssignments() {
           <li>• Tienes <strong>{assignments.length} estudiantes aceptados</strong> de un máximo de <strong>{professorData.max_students}</strong></li>
           <li>• Los estudiantes pueden contactarte directamente por email</li>
           <li>• Las funcionalidades de descarga de archivos estarán disponibles próximamente</li>
-          <li>• Puedes cambiar tu decisión de aceptación en la sección "Ver Solicitudes"</li>
+          <li>• Puedes cambiar tu decisión de aceptación en la sección &quot;Ver Solicitudes&quot;</li>
         </ul>
       </div>
     </div>

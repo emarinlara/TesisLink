@@ -301,7 +301,7 @@ export default function CycleManagement({ onBackToDashboard, onLogout }) {
                   placeholder="Ej: Ciclo 2025-1"
                 />
                 <p className="text-white opacity-60 text-xs mt-2">
-                  Ejemplo: "Ciclo 2025-1", "Primer Ciclo 2025", "2025-I"
+                  Ejemplo: "Ciclo 2025-1", "Primer Ciclo 2025&quot;, &quot;2025-I&quot;
                 </p>
               </div>
 

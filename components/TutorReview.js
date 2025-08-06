@@ -470,7 +470,7 @@ export default function TutorReview({ onBackToDashboard }) {
             </div>
             <div className="mt-4 space-y-1 text-white opacity-70">
               <p>• Usa los dropdowns para completar estudiantes con menos de 3 profesores</p>
-              <p>• Puedes reasignar cualquier profesor usando el botón "×" y seleccionando otro</p>
+              <p>• Puedes reasignar cualquier profesor usando el botón &quot;×&quot; y seleccionando otro</p>
               <p>• Guarda los cambios para actualizar las asignaciones finales</p>
             </div>
           </div>
