@@ -391,22 +391,22 @@ export default function CycleManagement({ onBackToDashboard, onLogout }) {
             </h3>
             
             <div className="mb-6 p-4 bg-[#FFD400] border border-[#FFD400]">
-              <p className="text-sm text-[#FFD400] mb-3">
+              <p className="text-sm text-black mb-3">
                 <strong>Nombre del nuevo ciclo:</strong> &quot;{formData.name}&quot;
               </p>
-              <p className="text-sm text-[#FFD400] mb-2">
+              <p className="text-sm text-black mb-2">
                 <strong>Esto eliminará permanentemente:</strong>
               </p>
-              <ul className="text-sm text-[#FFD400] space-y-1">
+              <ul className="text-sm text-black space-y-1">
                 <li>• {migrationStats.students} estudiante(s) y sus perfiles</li>
                 <li>• {migrationStats.proposals} solicitud(es) de profesores</li>
                 <li>• {migrationStats.assignments} asignación(es) finales</li>
                 <li>• Todos los ciclos anteriores</li>
               </ul>
-              <p className="text-sm text-[#32D74B] mt-3">
+              <p className="text-sm text-black mt-3">
                 <strong>Se mantendrán:</strong>
               </p>
-              <ul className="text-sm text-[#32D74B]">
+              <ul className="text-sm text-black">
                 <li>• {migrationStats.professors} profesor(es) (migrarán al nuevo ciclo)</li>
               </ul>
             </div>

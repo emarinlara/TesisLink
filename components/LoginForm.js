@@ -69,7 +69,7 @@ const LoginForm = () => {
                 autoComplete="username"
                 required
                 className="w-full px-4 py-3 bg-transparent border-2 border-white border-opacity-30 text-white placeholder-white placeholder-opacity-60 focus:outline-none focus:border-white focus:border-opacity-100 transition-all"
-                placeholder="tu-email@veritas.co.cr"
+                placeholder="tu-email@veritas.cr"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 disabled={loading}
@@ -108,7 +108,7 @@ const LoginForm = () => {
 
             {/* Error */}
             {error && (
-              <div className="bg-white bg-opacity-10 border border-white border-opacity-30 px-4 py-3">
+              <div className="border border-white border-opacity-30 px-4 py-3">
                 <p className="text-white text-sm">{error}</p>
               </div>
             )}

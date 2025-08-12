@@ -47,10 +47,13 @@ export const AuthProvider = ({ children }) => {
   const signIn = async (username, password) => {
     try {
       setLoading(true)
-        // Validar dominio institucional
-          if (!username.endsWith('@veritas.co.cr')) {
-            throw new Error('Solo emails @veritas.co.cr pueden acceder al sistema')
-          }
+        // Validar dominios institucionales por rol
+        const isStudentEmail = username.endsWith('@lcieducation.net');
+        const isProfessorOrTutorEmail = username.endsWith('@veritas.cr');
+        
+        if (!isStudentEmail && !isProfessorOrTutorEmail) {
+          throw new Error('Solo emails institucionales pueden acceder: @lcieducation.net (estudiantes) o @veritas.cr (profesores/tutor)')
+        }
       // Validar credenciales usando la función SQL
       const { data, error } = await supabase
         .rpc('validate_user_credentials', {
