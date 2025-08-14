@@ -97,7 +97,7 @@ export default function FileUpload({
           <button
             onClick={() => imageInputRef.current?.click()}
             disabled={uploading}
-            className="mt-3 px-6 py-2 bg-white text-white rounded-md hover:bg-white disabled:bg-white text-sm font-medium"
+            className="mt-3 px-6 py-2 text-white rounded-md hover:bg-[#32D74B] disabled:bg-white text-sm font-medium"
           >
             {uploading ? 'Subiendo...' : '📁 Seleccionar Imagen'}
           </button>
@@ -130,7 +130,7 @@ export default function FileUpload({
       )}
 
       {/* Información adicional */}
-      <div className="bg-white border border-white rounded-md p-3">
+      <div className="border border-white rounded-md p-3">
         <h4 className="text-sm font-medium text-white mb-1">💡 Consejos para mejores resultados:</h4>
         <ul className="text-xs text-white space-y-1">
           <li>• Usa imágenes claras y bien iluminadas de tu proyecto</li>

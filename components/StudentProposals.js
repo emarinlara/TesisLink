@@ -194,50 +194,6 @@ export default function StudentProposals({ onBackToDashboard }) {
     }
   }
 
-  const handleReorderProposal = async (proposalIndex, direction) => {
-    try {
-      setSubmitting(true)
-      
-      const currentProposal = proposals[proposalIndex]
-      const newOrder = direction === 'up' ? currentProposal.proposal_order - 1 : currentProposal.proposal_order + 1
-      
-      // Encontrar la propuesta con la que intercambiar
-      const targetProposal = proposals.find(p => p.proposal_order === newOrder)
-      
-      if (!targetProposal) {
-        setMessage('No se puede mover en esa dirección')
-        return
-      }
-
-      // Intercambiar órdenes en base de datos
-      const { error1 } = await supabase
-        .from('student_proposals')
-        .update({ proposal_order: newOrder })
-        .eq('id', currentProposal.id)
-
-      const { error2 } = await supabase
-        .from('student_proposals')
-        .update({ proposal_order: currentProposal.proposal_order })
-        .eq('id', targetProposal.id)
-
-      if (error1 || error2) throw error1 || error2
-
-      setMessage('Orden actualizado exitosamente')
-      
-      // Recargar datos
-      setTimeout(() => {
-        loadData()
-        setMessage('')
-      }, 2000)
-
-    } catch (error) {
-      console.error('Error reordering proposal:', error)
-      setMessage('Error al reordenar: ' + error.message)
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
   const handleDeleteProposal = async (proposalId) => {
     if (!window.confirm('¿Estás seguro de que quieres eliminar esta solicitud?')) {
       return
@@ -284,7 +240,6 @@ export default function StudentProposals({ onBackToDashboard }) {
 
   const canEdit = (status) => status === 'pending'
   const canReplace = (status) => status === 'rejected'
-  const canReorder = (status) => status === 'pending' || status === 'rejected'
 
   if (loading) {
     return (
@@ -351,7 +306,7 @@ export default function StudentProposals({ onBackToDashboard }) {
 
         {/* Verificación de perfil completo */}
         {!profileComplete && (
-          <div className="mb-8 p-6 border border-[#FFD400] border-opacity-40 bg-[#FFD400] bg-opacity-20">
+          <div className="mb-8 p-6 border border-[#FFD400] border-opacity-40">
             <h3 className="text-white font-semibold text-xl mb-3">Perfil Incompleto</h3>
             <p className="text-white opacity-90 mb-4">
               Para hacer solicitudes necesitas completar tu perfil con:
@@ -419,13 +374,13 @@ export default function StudentProposals({ onBackToDashboard }) {
                     <h3 className="text-xl font-semibold text-white mb-3">No tienes solicitudes</h3>
                     <p className="text-white opacity-70 mb-6">Crea tus solicitudes de profesores manualmente</p>
                     
-                    {/* ✅ CORREGIDO: Solo mostrar profesores disponibles para crear solicitudes individuales */}
+                    {/* ✅ CORREGIDO: Mostrar TODOS los profesores disponibles desde el inicio (sin .slice(0, 5)) */}
                     {getAvailableProfessors().length > 0 && (
-                      <div className="max-w-2xl mx-auto">
+                      <div className="max-w-4xl mx-auto">
                         <h4 className="text-lg font-medium text-white mb-4">Profesores Disponibles:</h4>
-                        <div className="space-y-3">
-                          {getAvailableProfessors().slice(0, 5).map(professor => (
-                            <div key={professor.id} className="flex justify-between items-center p-4 border border-white border-opacity-20 bg-white bg-opacity-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {getAvailableProfessors().map(professor => (
+                            <div key={professor.id} className="flex justify-between items-center p-4 border border-white border-opacity-20">
                               <div className="text-left">
                                 <div className="text-white font-medium">{professor.name}</div>
                                 <div className="text-white opacity-60 text-sm">{professor.email}</div>
@@ -451,28 +406,6 @@ export default function StudentProposals({ onBackToDashboard }) {
                           {/* Orden de Prioridad */}
                           <div className="flex flex-col items-center">
                             <div className="text-2xl font-bold text-white">#{proposal.proposal_order}</div>
-                            {canReorder(proposal.status) && (
-                              <div className="flex flex-col space-y-1 mt-2">
-                                {proposal.proposal_order > 1 && (
-                                  <button
-                                    onClick={() => handleReorderProposal(index, 'up')}
-                                    disabled={submitting}
-                                    className="text-xs border border-white border-opacity-30 text-white hover:bg-white hover:bg-opacity-10 px-2 py-1 disabled:opacity-50 transition-colors"
-                                  >
-                                    ↑
-                                  </button>
-                                )}
-                                {proposal.proposal_order < 5 && (
-                                  <button
-                                    onClick={() => handleReorderProposal(index, 'down')}
-                                    disabled={submitting}
-                                    className="text-xs border border-white border-opacity-30 text-white hover:bg-white hover:bg-opacity-10 px-2 py-1 disabled:opacity-50 transition-colors"
-                                  >
-                                    ↓
-                                  </button>
-                                )}
-                              </div>
-                            )}
                           </div>
 
                           {/* Información del Profesor */}
@@ -484,10 +417,10 @@ export default function StudentProposals({ onBackToDashboard }) {
                                   onChange={(e) => setEditingProfessor(e.target.value)}
                                   className="bg-transparent border border-white border-opacity-30 text-white px-3 py-2 focus:outline-none focus:border-white focus:border-opacity-100 min-w-64"
                                 >
-                                  <option value="" className="bg-white text-white">Seleccionar profesor...</option>
-                                  <option value={proposal.professor_id} className="bg-white text-white">{proposal.professors.name} (actual)</option>
+                                  <option value="" className="text-white">Seleccionar profesor...</option>
+                                  <option value={proposal.professor_id} className="text-white">{proposal.professors.name} (actual)</option>
                                   {getAvailableProfessors(proposal.professor_id).map(prof => (
-                                    <option key={prof.id} value={prof.id} className="bg-white text-white">
+                                    <option key={prof.id} value={prof.id} className="text-white">
                                       {prof.name}
                                     </option>
                                   ))}
@@ -605,10 +538,10 @@ export default function StudentProposals({ onBackToDashboard }) {
             <div className="border border-white border-opacity-10 p-6">
               <h3 className="text-lg font-semibold text-white mb-4">Instrucciones:</h3>
               <ul className="text-white opacity-80 space-y-2 text-sm">
-                <li>• <span className="font-medium">Pendiente</span>: Puedes editar el profesor y cambiar el orden de prioridad</li>
+                <li>• <span className="font-medium">Pendiente</span>: Puedes editar el profesor asignado</li>
                 <li>• <span className="font-medium">Aceptada</span>: No se puede modificar (ya confirmada por el profesor)</li>
                 <li>• <span className="font-medium">Rechazada</span>: Puedes reemplazar con otro profesor disponible</li>
-                <li>• Usa los botones ↑↓ para cambiar el orden de prioridad (1 = más importante)</li>
+                <li>• El orden de las solicitudes se basa en el número de prioridad (#1, #2, #3, etc.)</li>
                 <li>• <span className="font-medium">Perfil completo requerido</span>: descripción del proyecto + imagen (sin PDF)</li>
               </ul>
             </div>

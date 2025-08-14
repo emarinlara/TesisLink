@@ -338,7 +338,7 @@ export default function StudentProfile({ onBackToDashboard }) {
         {message && (
           <div className={`mb-6 p-4 border ${
             message.includes('exitosamente') ? 'border-[#32D74B] bg-[#32D74B] bg-opacity-20 text-[#32D74B]' : 
-            message.includes('Primera vez') ? 'border-white bg-white bg-opacity-20 text-white' :
+            message.includes('Primera vez') ? 'border-white bg-white bg-opacity-20 text-black' :
             'border-[#FF453A] bg-[#FF453A] bg-opacity-20 text-[#FF453A]'
           }`}>
             {message}
