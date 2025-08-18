@@ -43,6 +43,11 @@ export default function ProfessorDashboard() {
     setViewingStudent(null)
   }
 
+  // ✅ NUEVA FUNCIÓN: Abrir imagen en nueva ventana
+  const handleViewImage = (url) => {
+    window.open(url, '_blank')
+  }
+
   useEffect(() => {
     if (userProfile?.role === 'professor') {
       fetchData()
@@ -144,28 +149,7 @@ export default function ProfessorDashboard() {
     }
   }
 
-  const handleReject = async (proposalId) => {
-    try {
-      setError('')
 
-      // Actualizar el estado de la solicitud
-      const { error: updateError } = await supabase
-        .from('student_proposals')
-        .update({ status: 'rejected' })
-        .eq('id', proposalId)
-
-      if (updateError) {
-        throw updateError
-      }
-
-      // Recargar datos
-      await fetchData()
-
-    } catch (error) {
-      console.error('Error al rechazar solicitud:', error)
-      setError('Error al procesar la solicitud')
-    }
-  }
 
   if (!userProfile || userProfile.role !== 'professor') {
     return (
@@ -309,12 +293,6 @@ export default function ProfessorDashboard() {
   >
                             Aceptar
                         </button>
-                        <button
-                            onClick={() => handleReject(request.id)}
-                            className="text-white border border-white border-opacity-30 px-4 py-2 text-sm hover:bg-opacity-30 transition-colors"
-  >
-                            Rechazar
-                        </button>
                       </div>
                     </div>
                   </div>
@@ -427,7 +405,7 @@ export default function ProfessorDashboard() {
                 </div>
               </div>
 
-              {/* Imagen del Proyecto */}
+              {/* ✅ IMAGEN CLICKEABLE - MODIFICACIÓN PRINCIPAL */}
               {viewingStudent.project_image_url ? (
                 <div>
                   <h4 className="font-medium text-white mb-4 text-lg">Imagen del Proyecto</h4>
@@ -435,12 +413,17 @@ export default function ProfessorDashboard() {
                     <img 
                       src={viewingStudent.project_image_url} 
                       alt={`Proyecto de ${viewingStudent.name}`}
-                      className="w-full h-64 object-cover"
+                      className="w-full h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                      onClick={() => handleViewImage(viewingStudent.project_image_url)}
+                      title="Haz clic para abrir en nueva ventana"
                       onError={(e) => {
                         e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlbiBubyBkaXNwb25pYmxlPC90ZXh0Pjwvc3ZnPg=='
                       }}
                     />
                   </div>
+                  <p className="text-white opacity-60 text-xs mt-2 text-center">
+                    Haz clic en la imagen para verla en tamaño completo
+                  </p>
                 </div>
               ) : (
                 <div className="text-center py-12 border border-white border-opacity-20">
